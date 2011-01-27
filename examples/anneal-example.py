@@ -21,7 +21,6 @@ anneal['T'] = [(10, Tstart) , (-10, Tend)]
 anneal['Ncut_factor'] = [(2/3, 0.) , (-10, 1.)]
 anneal['pi_noise'] = 0.5
     
-
 assert anneal['bla'] == 0.0
 
 while not anneal.finished:
