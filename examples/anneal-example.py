@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+  Demonstrate how to use the annealing class to generate 
+  piecewise-linear annealing schedules.
+"""
+
 from __future__ import division
 
 import sys
 sys.path.insert(0, '..')
 
 from pulp.em.annealing import LinearAnnealing
-
 
 Tsteps = 80
 Tstart = 20

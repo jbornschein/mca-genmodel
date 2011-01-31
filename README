@@ -1,0 +1,26 @@
+
+
+== Introduction ==
+
+This package contains all the source code to reproduce
+the
+
+
+== Overview ==
+
+pulp/       - Python library/framework for MPI parallelized 
+               EM-based algoythms.
+
+examples/   - Small example programs how to used pulp.
+
+preproc/    - Scripts used to extract patches from the Van-Hateren
+               database and to preprocess them usnig pseudo-whitening.
+
+gf-learning - 
+
+data/       - This directory is empty.
+
+== Data Sets ==
+
+
+
