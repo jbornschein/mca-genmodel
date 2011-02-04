@@ -58,7 +58,7 @@ visualize the result.
 To run the real experiments change into the 'gf-learing/' directory and 
 choose a parameter-file:
 
- $ python run-em.py params-h200.py
+ $ python run-em.py params-16x16-h100.py
 
 The results will be stored into a file called "output/.../results.h5".
 This file contains the W, pi, sigma parameters for each EM iteration. To 
@@ -66,7 +66,7 @@ visualize these results you can use "./report <output-dir-name>", which
 will save the generated plots into the "output/.../" directory again. 
 
 
-Running on such big datasets, high values of H, Hprime and gamma is
+Running on big datasets, with high values of H, Hprime and gamma is
 computationally very expensive; use MPI to parallelize:
 
 a) On a multi-core machine with 32 cores
@@ -82,8 +82,10 @@ b) On a cluster:
 See you MPI documentation for the details how to start MPI parallelized .
 
 
-Using 200 parallel cores the compuation still took about one day! Especially
-the Hprime and gamma parameters have a strong influence on the computational
+Using 160 parallel cores for the 16x16 patches, a single EM step takes about
+1:30 minutes -- less 2h for a full EM training run. Running 26x26 takes much
+longer (more than 24h).
+The Hprime and gamma parameters have a strong influence on the computational
 cost.
 
 

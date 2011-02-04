@@ -193,12 +193,12 @@ else:
 # Do postprocessing: GFs -> RFs
 tracepoint("Postprocessing")
 
-if processing == 'reverse-corr':
+if postproc == 'reverse-corr':
     dlog.progress("Postprocessing: reverse-corr")
     #Process with the original D
     #the output is single channeld (H, size, size)
     raise
-elif processing == 'deconvolve':
+elif postproc == 'deconvolve':
     #Really fast operation, scatering the results would take more time 
     #than computing the same on all the processors.
     dlog.progress("Postprocessing: deconvolve")

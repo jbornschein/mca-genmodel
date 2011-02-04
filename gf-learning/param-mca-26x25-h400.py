@@ -50,7 +50,7 @@ sigma_noise = 0.
 # -- Postprocessing --
 
 # Postprocessing: run convolution to approx. reverse correlation
-processing = 'deconvolve'   
+postproc = 'none'   
 s_m = 1.  # convolution parameters
 s_p = 3.  # convolution parameters
 

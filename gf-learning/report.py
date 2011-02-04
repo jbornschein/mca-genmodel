@@ -2,10 +2,11 @@
 
 """
 
-Given an result-directory this script produces two plots:
+Given an result-directory this script produces multiple plots:
 
  a) time-course of the sparseness (pi*H) plottet over  EM-steps
  b) time-course of the noise-parameter (sigma) over the EM-steps
+ c) ..
 
 
 """
@@ -13,9 +14,9 @@ Given an result-directory this script produces two plots:
 from __future__ import division
 
 import sys
-from math import pi
+sys.path.insert(0, "../")
 
-sys.path.insert(0, "../../../pylib")
+from math import pi
 
 import tables
 import pylab
@@ -173,7 +174,7 @@ if __name__ == "__main__":
         print "Saved old_nxny plot into %s/nxny_old.png" % outdir
 
         print "Saved nxny plot into %s/nxny.png" % outdir
-    except NoSuchNodeError:
+    except (NoSuchNodeError, ImportError):
         print "Skipped nx/ny plot!"
         gabor_params = None
         gabor_errors = None
@@ -192,7 +193,7 @@ if __name__ == "__main__":
     #    else:
     #        print "Number of gabor_params != H (%d != %d)" % (gabor_params.shape[0], H)
 
-    # Fuse channel splitting??  (XXX subtracting  is technically wrong! XXX)
+    # Fuse channel splitting??  (XXX subtracting  is technically a wrong visualization! XXX)
     if params['channel_splitted']:
         D2 = np.sqrt(D // 2)
         W = W.reshape(steps, H, 2*D2, D2)
@@ -207,7 +208,6 @@ if __name__ == "__main__":
         img = tiled_gfs(gfs, sym_cm=True, global_cm=False)
         img = img.resize( (zoom*img.size[0], zoom*img.size[1]) )
         img.save(outdir+"/W_%03d.png" % s)
-
 
     h5.close()
 

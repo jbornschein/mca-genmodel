@@ -8,11 +8,12 @@ PATCHES20_FILE="patches20.h5.bz2"
 PATCHES26_FILE="patches26.h5.bz2"
 
 IMAGES_URL="$BASE_URL/$IMAGES_FILE"
+PATCHES16_URL="$BASE_URL/$PATCHES16_FILE"
 PATCHES20_URL="$BASE_URL/$PATCHES20_FILE"
 PATCHES26_URL="$BASE_URL/$PATCHES26_FILE"
 
 echo
-echo "This script will download and unpack XXX GB training data. "
+echo "This script will download and unpack about 8GB training data. "
 #echo "The resulting files will occupy YYY GB of diskspace."
 echo 
 echo "Make sure you have wget and bunzip2 installed."
