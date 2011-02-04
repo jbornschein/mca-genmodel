@@ -1,0 +1,142 @@
+#!/usr/bin/env python
+
+from __future__ import division
+
+import sys
+sys.path.insert(0, '..//')
+
+import numpy as np
+import tables
+import random
+
+from pulp.utils.autotable import AutoTable
+
+import pulp.preproc.image as pri
+import matplotlib.pyplot as mp
+import scipy.signal as sl
+
+# Perform DoG preproc, together with
+# a cut-off in the maximum amplitud that keeps a certain given 
+# percentage of the pixels *per* untouched.
+
+input_fname = '../data/vanhateren-natural.h5' # Input image database
+output_fname = 'patches.h5'                   # To store the result
+
+num_patches = 200000     # number of patches to extract
+num_images = 100         # from which to extract patches ranomly
+                         #   (we try to use as many as possible) 
+       
+Nf = 20                  # final patch size.
+cut_frac = 0.98          # clamp brightest 2% of pixelss to remaining
+                         #  98%
+
+# DoG kernel parameters
+s_p = 3.0                # sigma of positive gaussian (in pixel)
+s_m = 1.0                # sigma of negative gaussian 
+
+
+# Opening input datafile
+h5 = tables.openFile('../data/vanhateren-natural.h5', 'r')
+fullimset = h5.root.images
+
+# Open output datafile
+otbl = AutoTable(output_fname)
+
+#we generate a DoG to convolve with
+def DoG(n_p, n_m, s_p, s_m):
+    '''Returns a DoG kernel of size 6*s_p x 6*s_p, 
+       centered at the DoG center where *s_p* is the broadest variance in a DoG and 
+       *s_m* the thinnest. *n_p* is the amplitud of the broadest gaussian, and *n_m* 
+       the amplitud of the thinnest.
+    '''
+
+    gx, gy = np.ogrid[0:np.int(6*s_p), 0:np.int(6*s_p)]
+    gx -= np.int(6.*(s_p/2.))
+    gy -= np.int(6.*(s_p/2.))
+
+    #Generate the exponents
+    e1 = (1./(s_p**2))*gx*gx + (1./(s_p**2))*gy*gy
+    e2 = (1./(s_m**2))*gx*gx + (1./(s_m**2))*gy*gy
+    
+    G = -n_p*np.exp(-0.5*e1) + n_m*np.exp(-0.5*e2)
+    return G
+
+
+def sat_func(data, per):
+    '''*data* is a 2d array, *per* is number between 0. and 1.
+       indicating the percentage of pixels to keep intact.
+       Returns a two element tuple first, the used cut off.
+       And second 2d array that has a fraction *per* of the initial 
+       lowest pixel values in *data* without modification. 
+    '''
+    image_ = data.copy()
+    a, b = image_.shape
+    #we make and compare the analytic histogram (1000 bins)#
+    B = np.histogram((image_.flatten()).astype('int'), 1000)
+    #We use a cumsum to find the #
+    C = np.cumsum(B[0])
+    cum_thre = per*a*b
+    C[C > cum_thre] = 0.
+    c = np.argmax(C)
+    real_thre = B[1][c]
+    #we transform the image#
+    image_[image_>real_thre] = real_thre
+    return (real_thre, image_)
+
+
+#Some useful visualizing function
+def printG(i):
+    ll = len(str(i))
+    sys.stdout.write('\b'*ll + str(i))
+    sys.stdout.flush()
+
+
+#we extract and convolve *num_patches//num_images* patches image per image,
+#We try to keep this number as low as possible.
+num_batch = num_patches//num_images
+num_patches = num_batch*num_images
+
+_, h, w = fullimset.shape
+
+
+
+#typical patch size  (we emulate one extraction) after convolution
+result = pri.extract_patches_from_single_image(fullimset[0], (Nf + np.int(6*s_p), Nf + np.int(6*s_p)), 1)[0]
+cut_off, result = sat_func(result, 0.98)
+n_p = 0.3*cut_off
+n_m = 9*n_p
+result = sl.convolve2d(DoG(n_p, n_m, s_p, s_m), result)
+a, b = result.shape
+sa = a//2
+sb = b//2
+fr = Nf//2
+
+
+#Extracting patch by patch and convolving
+print '\n Extracting and convolving:\n'
+ext_patches = np.empty([num_batch*num_images, Nf, Nf])
+for ll in xrange(num_images):
+    for i in xrange(num_batch):
+        result = pri.extract_patches_from_single_image(fullimset[ll], (Nf + np.int(6*s_p), Nf + np.int(6*s_p)), 1)[0]
+        cut_off, result = sat_func(result, cut_frac)
+        n_p = 0.3*cut_off
+        n_m = 9*n_p
+        conv = sl.convolve2d(DoG(n_p, n_m, s_p, s_m), result)[sa-fr:sa+fr, sb-fr:sb+fr]
+        ext_patches[num_batch*ll + i,:,:] = conv - np.mean(conv)
+        printG(num_batch*ll + i) 
+
+
+#Channel Splitting, saving and renormalizing (to 10) 
+P2 = np.zeros([2*Nf, Nf])
+for num in xrange(num_patches): 
+    P2[:Nf, :] =    ext_patches[num, :, :]
+    P2[Nf:, :] = -1.*ext_patches[num, :, :]
+    P2[ P2 <0 ] = 0.
+    P2 = 10.*(P2/np.max(P2))
+    otbl.append('patches', P2)
+
+print '\n\n Ready!\n'
+
+otbl.close()
+h5.close()
+
