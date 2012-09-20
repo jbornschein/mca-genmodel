@@ -14,7 +14,7 @@ import pulp.utils.tracing as tracing
 from pulp.utils.datalog import dlog
 from pulp.em.camodels import CAModel
 
-class LinCA_ET(CAModel):
+class BSC_ET(CAModel):
     def __init__(self, D, H, Hprime, gamma, to_learn=['W', 'pi', 'sigma'], comm=MPI.COMM_WORLD):
         CAModel.__init__(self, D, H, Hprime, gamma, to_learn, comm)
 
@@ -76,7 +76,7 @@ class LinCA_ET(CAModel):
 
     @tracing.traced
     def E_step(self, anneal, model_params, my_data):
-        """ LinCA E_step
+        """ BSC E_step
 
         my_data variables used:
             
@@ -159,7 +159,7 @@ class LinCA_ET(CAModel):
 
     @tracing.traced
     def M_step(self, anneal, model_params, my_suff_stat, my_data):
-        """ LinCA M_step
+        """ BSC M_step
 
         my_data variables used:
             
