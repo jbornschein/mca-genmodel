@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #
-#  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
+#  Author:   Marc Henniges
+#        and Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
 #  Lincense: GPL V3.0
 #
 

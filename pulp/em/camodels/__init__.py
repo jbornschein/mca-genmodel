@@ -1,11 +1,11 @@
 #
 #  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
+#        and Marc Henniges
 #  Lincense: GPL V3.0
 #
 
 """
-
-
+  Base class for Expectation Truncation based multiple cause models
 """
 
 from __future__ import division
@@ -37,9 +37,6 @@ class CAModel(Model):
     __metaclass__ = ABCMeta
 
     def __init__(self, D, H, Hprime, gamma, to_learn=['W', 'pi', 'sigma'], comm=MPI.COMM_WORLD):
-        """
-
-        """
         Model.__init__(self, comm)
         self.to_learn = to_learn
 
