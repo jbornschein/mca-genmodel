@@ -1,4 +1,4 @@
 #!/bin/sh
 
-git archive  -o ~/public_html/NonLinSC/mmca-package.tgz --prefix=mca-bsc-et/ HEAD
+git archive --prefix=mca-bsc-code/ HEAD | gzip > ~/public_html/NonLinSC/mca-bsc-code.tgz
 
