@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+#
+#  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
+#  Lincense: GPL V3.0
+#
 
 from __future__ import division
 

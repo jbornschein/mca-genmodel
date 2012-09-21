@@ -1,4 +1,8 @@
-# -*- coding: utf-8 -*-
+#
+#  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
+#  Lincense: GPL V3.0
+#
+
 """
     The pulp.utils.py25_compatibility contains a few items that are new to
     Python 2.6 in order to mantain compatibility with Python 2.5:

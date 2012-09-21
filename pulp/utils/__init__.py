@@ -1,4 +1,8 @@
-# -*- coding: utf-8 -*-
+#
+#  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
+#  Lincense: GPL V3.0
+#
+
 """
     The pulp.utils packages provides various utility functions and classes.
 """

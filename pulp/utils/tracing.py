@@ -1,3 +1,8 @@
+#
+#  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
+#  Lincense: GPL V3.0
+#
+
 """
 
 Record tracepoint for runtime profiling/tracing.

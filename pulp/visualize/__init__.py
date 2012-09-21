@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
-
-##TODO: For now it only plots GF/RF in the simmetric way... 
-##TODO: All I/O guys have to be handled at the creation. 
+#
+#  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
+#  Lincense: GPL V3.0
+#
 
 from __future__ import division
 

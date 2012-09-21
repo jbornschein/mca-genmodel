@@ -1,3 +1,8 @@
+#
+#  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
+#  Lincense: GPL V3.0
+#
+
 """
 The autotable module provides a simple interface to store data from simulation
 runs into efficient HDF5 files onto the filesystem.

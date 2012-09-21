@@ -1,3 +1,8 @@
+#
+#  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
+#  Lincense: GPL V3.0
+#
+
 """
 This module provides the GaborFilter class, which encapsulates a 
 complete gabor transform and provides functions to extract jets

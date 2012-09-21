@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#
+#  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
+#  Lincense: GPL V3.0
+#
 
 """
   Demonstrate how to use the annealing class to generate 
