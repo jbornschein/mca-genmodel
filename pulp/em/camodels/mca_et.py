@@ -1,6 +1,6 @@
 #
 #  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
-#  Lincense: GPL V3.0
+#  Lincense: Academic Free License (AFL) v3.0
 #
 
 from __future__ import division

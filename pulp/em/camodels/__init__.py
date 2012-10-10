@@ -1,7 +1,6 @@
 #
 #  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
-#        and Marc Henniges
-#  Lincense: GPL V3.0
+#  Lincense: Academic Free License (AFL) v3.0
 #
 
 """
