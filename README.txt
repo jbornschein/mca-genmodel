@@ -1,7 +1,7 @@
 
 == Introduction ==
 
-This package contains all the source code to reproduce the nummerical
+This package contains all the source code to reproduce the numerical
 experiments described in [1]. It contains a parallelized implementation
 of the MCA generative model training algorithm.
 
