@@ -58,7 +58,8 @@ class MMCA_ET(CAModel):
         Sanity-check the given model parameters. Raises an exception if something 
         is severely wrong.
         """
-        model_params = CAModel.check_params(self, model_params)
+        # XXX
+        #model_params = CAModel.check_params(self, model_params)
 
         tol = self.tol
         W = model_params['W']
@@ -233,7 +234,6 @@ class MMCA_ET(CAModel):
 
         # Read in data:
         my_y      = my_data['y']
-        my_y_rc   = my_data['y_rc']
         my_cand   = my_data['candidates']
         my_logpj  = my_suff_stat['logpj']
         my_N, D   = my_y.shape
@@ -304,6 +304,7 @@ class MMCA_ET(CAModel):
 
         # Do reverse correlation if requested
         if self.rev_corr:
+            my_y_rc   = my_data['y_rc']
             D_rev_corr  = my_y_rc.shape[1]
             my_rev_corr = np.zeros( (H,D_rev_corr) )
             my_rev_corr_count = np.zeros(H)

@@ -1,10 +1,7 @@
-#
-#  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
-#  Lincense: Academic Free License (AFL) v3.0
-#
-
+# -*- coding: utf-8 -*-
 """
-  Base class for Expectation Truncation based multiple cause models
+
+
 """
 
 from __future__ import division
@@ -36,6 +33,9 @@ class CAModel(Model):
     __metaclass__ = ABCMeta
 
     def __init__(self, D, H, Hprime, gamma, to_learn=['W', 'pi', 'sigma'], comm=MPI.COMM_WORLD):
+        """
+
+        """
         Model.__init__(self, comm)
         self.to_learn = to_learn
 
@@ -71,28 +71,21 @@ class CAModel(Model):
         self.state_matrix = sm
         self.state_abs = sm.sum(axis=1)
         
-    @tracing.traced
-    def check_params(self, model_params):
-        """ Sanity check.
+    def generate_data(self, model_params, my_N):
+        """ 
+        Generate data according to the model. Internally uses generate_data_from_hidden.
 
-        Sanity-check the given model parameters. Raises an exception if 
-        something is severely wrong.
+        This method does _not_ obey gamma: The generated data may have more
+        than gamma active causes for a given datapoint.
         """
-        W     = model_params['W']
-        pies  = model_params['pi']
-        sigma = model_params['sigma']
+        H, D = self.H, self.D
+        pies = model_params['pi']
 
-        assert np.isfinite(W).all()      # check W
+        p = np.random.random(size=(my_N, H))    # Create latent vector
+        s = p < pies                            # Translate into boolean latent vector
 
-        assert np.isfinite(pies).all()   # check pies
-        assert pies >= 0.
-        assert pies <= 1.
-
-        assert np.isfinite(sigma).all()  # check sigma
-        assert sigma >= 0.
-
-        return model_params
-
+        return self.generate_from_hidden(model_params, {'s': s})
+    
     @tracing.traced
     def select_partial_data(self, anneal, my_data):
         """ Select a partial data-set from my_data and return it.
@@ -144,6 +137,11 @@ class CAModel(Model):
 
         # Use joint-probabilities to derive new parameter set
         new_model_params = self.M_step(anneal, model_params, my_joint_prob, my_pdata)
+        
+        # Calculate Objecive Function
+        #[Q, theo_Q] = self.objective(my_joint_prob, model_params, my_pdata)
+        #dlog.append('Q', Q)
+        #dlog.append('theo_Q', theo_Q)
 
         # Log iboth model parameters and annealing parameters
         dlog.append_all(new_model_params)
@@ -187,4 +185,43 @@ class CAModel(Model):
 
         return model_params
 
+    @tracing.traced
+    def inference(self, anneal, model_params, my_data, no_maps=10):
+        W = model_params['W']
+        my_y = my_data['y']
+        H, D = W.shape
+        my_N, D = my_y.shape
+
+        # Prepare return structure
+        res = {
+            's': np.zeros( (my_N, no_maps, H), dtype=np.int),
+            'p': np.zeros( (my_N, no_maps) )
+        }
+
+        if 'candidates' not in my_data:
+            my_data = self.select_Hprimes(model_params, my_data)
+            my_cand = my_data['candidates']
+
+
+        my_suff_stat = self.E_step(anneal, model_params, my_data)
+        my_logpj  = my_suff_stat['logpj']
+        my_corr   = my_logpj.max(axis=1)           # shape: (my_N,)
+        my_logpjc = my_logpj - my_corr[:, None]    # shape: (my_N, no_states)
+        my_pjc    = np.exp(my_logpjc)              # shape: (my_N, no_states)
+        my_denomc = my_pjc.sum(axis=1)             # shape: (my_N)
+        
+        idx = np.argsort(my_logpjc, axis=-1)[:, ::-1]
+        for n in xrange(my_N):                                   # XXX Vectorize XXX
+            for m in xrange(no_maps):
+                this_idx = idx[n,m]
+                res['p'][n,m] = my_pjc[n, this_idx] / my_denomc[n]
+                if this_idx == 0:
+                    pass
+                elif this_idx < (H+1):
+                    res['s'][n,m,this_idx-1] = 1
+                else:
+                    s_prime = self.state_matrix[this_idx-H-1]
+                    res['s'][n,m,my_cand[n,:]] = s_prime
+
+        return res
 

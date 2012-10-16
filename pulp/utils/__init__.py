@@ -67,7 +67,7 @@ def iter_to_str(iteration, maximum):
 def check_basis(test_basis, real_basis):
     """Check if *real_basis* is contained in *test_basis*.
   
-    Return the MAE (mean average error; see Jörg's ET paper) and the 
+    Return the MAE (mean average error; see Joerg's ET paper) and the 
     corresponding permutation for test_basis.
 
     """
@@ -188,106 +188,3 @@ def compute_MAE_prob(model, anneal, mparams, gparams, MAE_threshold):
         if num_basis == H: return (MAE, permutation)
         else: return (MAE, max_places)
 
-
-
-
-def binom(n, m):
-    """
-    # code from http://www.brpreiss.com/books/opus7/programs/pgm14_10.txt
-
-    XXX There is scipy.comb which does excatly the same! XXX
-    """
-    b = [0] * (n + 1)
-    b[0] = 1
-    for i in xrange(1, n + 1):
-        b[i] = 1
-        j = i - 1
-        while j > 0:
-            b[j] += b[j - 1]
-            j -= 1
-    return b[m]
-
-#=========================================================================
-# Alternative Implementation
-#def check_basis(test_basis, real_basis):
-#    """
-#       Check if the basis *test_basis* contains all the basis vectors
-#       given in *real_basis* and return the MAE (mean average error;
-#       see Jörg's ET paper) and the corresponding permutation for
-#       test_basis.
-#    """
-#    Ht, Dt = test_basis.shape
-#    Hr, Dr = real_basis.shape
-#        
-#    assert Dt == Dr
-#
-#    # First calculate error matrix
-#    error = np.zeros( (Hr, Ht) )
-#    for hr in xrange(Hr):
-#        for ht in xrange(Ht):
-#            error[hr, ht] = np.sum(np.abs(real_basis[hr]-test_basis[ht])) / Dt / Hr
-#    
-#    # Allocate tables for dynamic programming
-#    mae_tab = np.zeros( (Hr, Ht) )
-#    used_tab = np.empty( (Hr, Ht), dtype=np.object)
-#
-#    # Initialize first row
-#    for ht in xrange(Ht):
-#        mae_tab[0, ht] = error[0, ht]
-#        used_tab[0, ht] = [ht]
-#        
-#    #print mae_tab
-#    #print used_tab
-#
-#    # Build table
-#    for hr in xrange(1, Hr):
-#        for ht in xrange(Ht):
-#            srcrow = mae_tab[hr-1, :].copy()
-#
-#            # Throw out solutins with double-assignments
-#            for h in xrange(Ht):
-#                if ht in used_tab[hr-1, h]:
-#                    srcrow[h] = np.inf
-#
-#            minpos = np.argmin(srcrow)
-#            mae_tab[hr, ht] = srcrow[minpos] + error[hr, ht]
-#            used_tab[hr, ht] = used_tab[hr-1, minpos] + [ht]
-#
-#    #print mae_tab
-#    #print used_tab
-#
-#    minpos = np.argmin(mae_tab[-1,:])
-#    return mae_tab[-1, minpos], used_tab[-1, minpos]
-#
-
-class MaxMeanQueue():
-    """ Queue that only keeps a certain number of elements in stack
-    and can return the current mean value of all elements in stack.
-    """
-    def __init__(self, num_element):
-        """ num_element expects the maximum number of elements in the queue
-        """
-        self._queue = []
-        self._num_element = num_element
-
-    def push(self, element):
-        num_element = self._num_element
-        if len(self._queue) >= num_element:
-            self._queue.__delitem__(0)
-        self._queue.append(element)
-    
-    def pop(self):
-        popped = self._queue.pop(0)
-        return popped
-    
-    def return_mean(self):
-        """ returns np.array with last queue value and mean and variance of first n-1 queue elements
-        """
-        if len(self._queue) == 1:
-            return np.array([self._queue[0], self._queue[0], 0])
-        else:
-            return np.array([self._queue[-1], np.mean(self._queue[0:-1]), np.std(self._queue[0:-1])])
-
-    def numel(self):
-        return len(self._queue)
-    

@@ -46,7 +46,8 @@ class MCA_ET(CAModel):
         Sanity-check the given model parameters. Raises an exception if something 
         is severely wrong.
         """
-        model_params = CAModel.check_params(self, model_params)
+        # XXX
+        #model_params = CAModel.check_params(self, model_params)
 
         # Obey W_tol
         model_params['W'] = np.maximum(model_params['W'], self.W_tol)  

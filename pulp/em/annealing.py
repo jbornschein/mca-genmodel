@@ -16,7 +16,6 @@ except ImportError, e:
 
 import numpy as np
 import time
-from pulp.utils import MaxMeanQueue
 from pulp.utils.datalog import dlog
 
 class Annealing():
@@ -200,62 +199,4 @@ class ConvAnnealing(Annealing):
     def getElapsedTime(self):
         return time.clock() - self.start_time
 
-class ConditionalAnnealing(LinearAnnealing):
-    """ Checking the difference (sigma-data_noise) and only cooling if new value is 
-    out of window.
-    """
-    def __init__(self,  steps=80, queue_length=10):
-        """
-        """
-        self.max_queue_length = queue_length
-        self.steps = steps
-        self.anneal_params = {}
-        self.reset()
-        self['max_step'] = [(steps, steps)]
-        self['position'] = [(0, 0.), (steps, 1.)]
-        self['step'] = [(0,0.), (steps, steps)]
-        self.criterion = MaxMeanQueue(queue_length)
-        self.crit_params = ['sigma_new']
-        
-    def reset(self):
-        self.cur_pos = 0 # position in algorithm (which T, noise intensity etc...)
-        self.cur_step = 0 # overall step
-        self.finished = False
-        
-    def dyn_param(self, param, this_param):
-        if param == 'sigma_new':
-            diff = this_param - self['data_noise']
-            self.criterion.push(diff)
-    
-    def next(self, gain=0.0):
-        """
-        Step forward by one step.
-        
-        After calling this method, this annealing object will
-        potentially return different values for all its values.
-        """
-        if self.finished:
-            raise RuntimeError("Should not next() further when already finished!")
-        
-        my_queue = self.criterion
-        my_queue_vals = self.criterion.return_mean()
-        cur_value = my_queue_vals[0]
-        mean_value = upper_bound = lower_bound = my_queue_vals[1]
-
-        if my_queue.numel() > (self.max_queue_length/2):
-            upper_bound = my_queue_vals[1]+my_queue_vals[2]
-            lower_bound = my_queue_vals[1]-my_queue_vals[2]
-            dlog.append('diff', cur_value)
-            dlog.append('upper_noise_bound', upper_bound)
-            dlog.append('lower_noise_bound', lower_bound)
-            dlog.append('mean_noise_value', mean_value)
-        
-        if (cur_value>=lower_bound) and (cur_value<=upper_bound):
-            self.cur_pos += 1
-        
-        self.accept = True
-        self.cur_step += 1
-        
-        if self.cur_pos >= self.steps:
-            self.finished = True
     

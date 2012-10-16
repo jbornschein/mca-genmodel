@@ -145,7 +145,7 @@ if __name__ == "__main__":
     W_gt += np.random.normal(size=(H, D), scale=0.5)
     
     # Prepare model...
-    model = LinCA_ET(D, H, Hprime, gamma, to_learn)
+    model = BSC_ET(D, H, Hprime, gamma, to_learn)
     mparams = {
         'W'     : W_gt,
         'pi'    : pi_gt,
