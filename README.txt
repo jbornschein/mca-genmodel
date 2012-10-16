@@ -2,8 +2,9 @@
 == Introduction ==
 
 This package contains all the source code to reproduce the numerical
-experiments described in [1]. It contains a parallelized implementation
-of the MCA generative model training algorithm.
+experiments described in the paper. It contains a parallelized implementation
+of the Binary Sparse Coding (BSC) and Maximum Causes Analysis (MCA) generative
+models training algorithm.
 
 
 If you have problems running the code, please contact
@@ -13,7 +14,8 @@ If you have problems running the code, please contact
 
 pulp/       - Python library/framework for MPI parallelized 
                EM-based algorithms. The MCA implementation
-               is in pulp/em/camodels/mca_et.py
+               can be found in pulp/em/camodels/mmca_et.py, the 
+               BSC implementation in pulp/em/camodels/bsc_et.py.
 
 examples/   - Small example programs for the ulp library
 
@@ -28,13 +30,16 @@ data/       - Traing data. This package does not include the training data
 
 == Data Sets ==
 
-The script "data/download.sh" will download 3 datasets:
+The script "data/download.sh" will download 4 datasets from 
+ http://fias.uni-frankfurt.de/~bornschein/NonLinSC/data/
   
- 1) vanhateren-linear.h5 
- 2) patches16.h5 patches of size 16x16, preprocessed as described in [1]
- 3) patches20.h5 patches of size 20x20, preprocessed as described in [1]
- 4) patches26.h5 oatches of size 26x26, preprocessed as described in [1]
+ 1) patches20.h5      patches of size 20x20
+ 2) patches26.h5      patches of size 26x26
+ 3) patches20-dog.h5  patches of size 20x20
+ 4) patches26-dog.h5  oatches of size 26x26
 
+In total the size of these 4 datasets exceeds 30 GBytes, so 
+make sure you have enough disk space available.
 
 == Software dependencies ==
  
@@ -49,16 +54,18 @@ The script "data/download.sh" will download 3 datasets:
 First, run some examples. E.g.
 
   $ cd examples
-  $ python mca-barstest.py
+  $ python mca-barstest.py      
+or
+  $ python bsc-barstest.py
 
-This should run the MCA algorithm on artificaial bars data and 
-visualize the result.
+This should run the respective algorithm on artificaial bars data and visualize
+the result.
 
 
 To run the real experiments change into the 'gf-learing/' directory and 
-choose a parameter-file:
+choose a parameter-file; e.g.
 
- $ python run-em.py params-16x16-h100.py
+ $ python run-em.py params-20x20-dog/mca-20-0600-H12.py
 
 The results will be stored into a file called "output/.../results.h5".
 This file contains the W, pi, sigma parameters for each EM iteration. To 
@@ -79,19 +86,12 @@ b) On a cluster:
 
  where 'machines' contains a list of suitable machines.
 
-See you MPI documentation for the details how to start MPI parallelized .
+See your MPI documentation for the details on how to start MPI parallelized 
+programs.
 
 
-Using 160 parallel cores for the 16x16 patches, a single EM step takes about
-1:30 minutes -- less 2h for a full EM training run. Running 26x26 takes much
-longer (more than 24h).
-The Hprime and gamma parameters have a strong influence on the computational
-cost.
-
-
-== References ==
-
-[1] The Maximal Causes of Natural Scenes are Edge Filters,
-     G. Puertas, J. Bornschein, J. Lucke, 
-     Advances in Neural Information Processing Systems 23, 2010
+Using 160 parallel cores and for the 16x16 patches, a single EM step takes
+about 1:30 minutes -- less 2h for a full EM training run. Running 26x26 takes
+much longer (more than 24h).  The Hprime and gamma parameters have a strong
+influence on the computational cost.
 
