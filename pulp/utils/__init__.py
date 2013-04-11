@@ -24,16 +24,21 @@ def create_output_path(basename=None):
     
     If you do not specify a *basename*, it will derive the base-name of the 
     directory from your programs name (sys.argv[0]).
+
+    Returns the path of the newly created directory.
     """
     comm = MPI.COMM_WORLD
 
-    if comm.rank == 0:
+    if comm.rank == 0:                     # MPI Rank 0 does all the work
         if basename is None:
             basename = sys.argv[0]
 
         # Determine suffix
         if 'PBS_JOBID' in os.environ:
             job_no = os.environ['PBS_JOBID'].split('.')[0]   # Job Number
+            suffix = "d"+job_no
+        elif 'SLURM_JOBID' in os.environ:
+            job_no = os.environ['SLURM_JOBID'] 
             suffix = "d"+job_no
         else:
             suffix = tm.strftime("%Y-%m-%d+%H:%M")
@@ -67,9 +72,8 @@ def iter_to_str(iteration, maximum):
 def check_basis(test_basis, real_basis):
     """Check if *real_basis* is contained in *test_basis*.
   
-    Return the MAE (mean average error; see Joerg's ET paper) and the 
-    corresponding permutation for test_basis.
-
+    Return the MAE (mean average error) and the corresponding permutation 
+    for test_basis.
     """
     Ht, Dt = test_basis.shape
     Hr, Dr = real_basis.shape

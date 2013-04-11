@@ -6,6 +6,7 @@
 from __future__ import division
 
 import sys 
+import os
 import numpy as np
 from mpi4py import MPI 
 
@@ -26,7 +27,7 @@ typemap = {
 
 def pprint(obj="", comm=MPI.COMM_WORLD, end='\n'):
     """ 
-    Parralel print: Make sure only one of the MPI processes
+    Parallel print: Make sure only one of the MPI processes
     calling this function actually prints something. All others
     (comm.rank != 0) return without doing enything.
     """

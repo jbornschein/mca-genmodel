@@ -1,3 +1,8 @@
+#
+#  Author:   Jorg Bornschein <bornschein@fias.uni-frankfurt.de)
+#  Lincense: Academic Free License (AFL) v3.0
+#
+
 """
 
 Try to import accelerated versions of various NumPy operations..

@@ -13,18 +13,26 @@ Usage::
 
     tracing.set_tracefile()
 
-    tracing.tracepoint("Work::begin")
+    tracing.tracepoint("Work:begin")
     # Do hard work
-    tracing.tracepoint("Work::end")
+    tracing.tracepoint("Work:end")
 
+
+
+ToDo: 
+    Should change API so that "set_tracefile" takes a directory and 
+    not a filename pattern.
 """
 
 import os
 import sys
 import time
+import os.path as path
+import subprocess
 from mpi4py import MPI
 from functools import wraps
 
+trace_fname = None
 trace_file = None
 start_time = None
 
@@ -36,11 +44,11 @@ def tracepoint(str):
     recorded.
     """
     global trace_file
+    global start_time
 
     if trace_file is None:
         return
 
-    global start_time
     ts = MPI.Wtime() - start_time
     trace_file.write("[%f] [%s]\n" % (ts, str))
     #f = sys._getframe()
@@ -77,10 +85,14 @@ def set_tracefile(fname="trace-%04d.txt", comm=MPI.COMM_WORLD):
 
     The fname argument is expected to have a %d format specifier which will
     be replaced with the MPI rank.
+
+    Has to be called on all rank simultaniously.
     """
+    global trace_fname
     global trace_file
     global start_time
 
+    trace_fname = fname
     fname = fname % comm.rank
     trace_file = open(fname, "w")
     trace_file.write("# Start time: %s\n" % time.asctime())
@@ -88,5 +100,44 @@ def set_tracefile(fname="trace-%04d.txt", comm=MPI.COMM_WORLD):
     trace_file.write("# MPI size: %d rank: %d\n" % (comm.size, comm.rank))
 
     comm.Barrier(); start_time = MPI.Wtime()
-    comm.Barrier(); start_time = MPI.Wtime()
+
+def close(archive=True, comm=MPI.COMM_WORLD):
+    """ Closes the tracefiles and archives all tracefiles
+    """
+    global trace_fname
+    global trace_file
+    global start_time
+
+    # Tracing active at all?
+    if trace_file is None:
+        return
+
+    # All ranks close the tracefile
+    tracepoint("closing tracefiles")
+    trace_file.close()
+    comm.Barrier()
+
+    if archive and comm.rank == 0:
+        # Call external archiver..
+        trace_dir, trace_tailname = path.split(trace_fname)
+        trace_dir = path.normpath(trace_dir)
+
+        archive_fname = path.join(trace_dir, "traces.tgz")
+        archive_cmd = ["tar", "-czf", archive_fname, "-C", trace_dir]
+        for rank in xrange(comm.size):
+            archive_cmd.append(trace_tailname % rank)
+        #print"Running ", archive_cmd
+        subprocess.call(archive_cmd, stderr=subprocess.STDOUT)
+        
+        # Delete tracefiles
+        rm_cmd = ["rm"]
+        for rank in xrange(comm.size):
+            rm_cmd.append(trace_fname % rank)
+        #print"Running ", rm_cmd
+        subprocess.call(rm_cmd, stderr=subprocess.STDOUT)
+    
+    # Cleanup global variables
+    trace_fname = None
+    trace_file = None
+    start_time = None
 

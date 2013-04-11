@@ -89,7 +89,14 @@ class GUIProxyHandler(DataHandler):
             'vizid': self.vizid,
         }
         self.gui_queue.put(packet)
-
+    
+    def register(self, tblname):
+        packet = {
+            'cmd': 'register',
+            'vizid': self.vizid,
+            'tblname': tblname,
+        }
+        self.gui_queue.put(packet)
 
 #=============================================================================
 # StoreToH5 Handler
@@ -189,7 +196,7 @@ class TextPrinter(DataHandler):
 class DataLog:
     def __init__(self, comm=MPI.COMM_WORLD):
         self.comm = comm
-        self.gui_queue = Queue(2)    # Used to communicate with GUI process
+        self.gui_queue = None        # Used to communicate with GUI process
         self.gui_proc = None         # GUI process handle
         self.next_vizid = 0
         self.policy = []             # Ordered list of (tbname, handler)-tuples
@@ -286,11 +293,9 @@ class DataLog:
             raise TypeError("handler_class must be a subclass of DataHandler ")
 
         # If it's a GUI handler, instantiate a proxy and send 'create' command to GUI
-        if issubclass(handler_class, GUIDataHandler):
+        if issubclass(handler_class, GUIDataHandler) and self.gui_proc is not None:
             vizid = self.next_vizid     # Get an unique identifier
             self.next_vizid = self.next_vizid + 1
-
-            self.set_handler(tblname, GUIProxyHandler, self.gui_queue, vizid)  # set proxy handler
 
             packet = {
                 'cmd': 'create',
@@ -300,6 +305,8 @@ class DataLog:
                 'handler_kargs': kargs
             }
             self.gui_queue.put(packet)
+            
+            self.set_handler(tblname, GUIProxyHandler, self.gui_queue, vizid)  # set proxy handler
             return 
 
         # if not, instantiate it now
@@ -340,6 +347,7 @@ class DataLog:
             gui = gui_class(gui_queue)
             gui.run()
 
+        self.gui_queue = Queue(2)    # Used to communicate with GUI process
         self.gui_proc = Process(target=gui_startup, args=(gui_class, self.gui_queue))
         self.gui_proc.start()
 
@@ -348,8 +356,8 @@ class DataLog:
         if self.comm.rank != 0:
             return
 
-        for (tblname, handler) in self.policy:
-            handler.close()
+        #for (tblname, handler) in self.policy:
+        #    handler.close()
         
         if self.gui_proc is not None:
             if quit_gui :
@@ -357,6 +365,7 @@ class DataLog:
                     'cmd': 'quit',
                     'vizid': 0
                 }
+                print "Sending quit!"
                 self.gui_queue.put(packet)
             self.gui_proc.join()
             
