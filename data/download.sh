@@ -4,8 +4,8 @@ BASE_URL="http://fias.uni-frankfurt.de/~bornschein/NonLinSC/data/"
 
 PATCHES20_FILE="patches-20.h5"
 PATCHES26_FILE="patches-26.h5"
-PATCHES20_DOG_FILE="patches-20.h5"
-PATCHES26_DOG_FILE="patches-26.h5"
+PATCHES20_DOG_FILE="patches-20-dog.h5"
+PATCHES26_DOG_FILE="patches-26-dog.h5"
 
 PATCHES20_URL="$BASE_URL/$PATCHES20_FILE"
 PATCHES26_URL="$BASE_URL/$PATCHES26_FILE"
@@ -23,7 +23,7 @@ echo
 echo 
 echo "Press CTRL-C to abort...   (sleeping for 10 sec.)"
 
-sleep 10
+sleep 3 
 echo -e "Allright, lets continue...\n"
 
 
@@ -34,7 +34,7 @@ echo "Downloading 26x26 patches from $PATCHES26_URL..."
 $DOWN_CMD $PATCHES26_URL
 
 echo "Downloading 20x20 DoG whitened patches from $PATCHES20_DOG_URL..."
-$DOWN_CMD $PATCHES20_URL
+$DOWN_CMD $PATCHES20_DOG_URL
 
 echo "Downloading 26x26 DoG whitened patches from $PATCHES26_DOG_URL..."
 $DOWN_CMD $PATCHES26_DOG_URL
