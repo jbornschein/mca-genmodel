@@ -8,8 +8,7 @@ from __future__ import division
 
 #TODO: All our libraries paths are set in a source file
 import sys
-sys.path.insert(0, '../lib')
-sys.path.insert(0, '../../../pylib')
+sys.path.insert(0, '../')
 
 try:
     import numexpr as ne
@@ -31,13 +30,12 @@ from pulp.utils import create_output_path
 from pulp.utils.parallel import pprint
 from pulp.utils.datalog import dlog, StoreToH5, StoreToTxt
 from pulp.utils.autotable import AutoTable
-from pulp.utils.processing import deconv
 from pulp.utils import accel
 
 import pulp.utils.tracing as tracing
 
-from gabor_fitting import pgabor_fit
-from dog_fitting import pdog_fit
+from pulp.analyze.gabor_fitting import pgabor_fit
+from pulp.analyze.dog_fitting import pdog_fit
 
 comm = MPI.COMM_WORLD
 
