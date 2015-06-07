@@ -117,6 +117,15 @@ class CAModel(Model):
         return my_pdata
 
     @tracing.traced
+    def check_params(self, model_params):
+        """ Sanity check model parameters
+
+        Should be overwritten with a method that checks e.g. 
+        *isfinite* for all model parameters.
+        """
+        return model_params
+
+    @tracing.traced
     def step(self, anneal, model_params, my_data):
         """ Perform an EM-step """
 
